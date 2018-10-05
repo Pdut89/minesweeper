@@ -104,10 +104,6 @@ $(document).ready(function() {
     })
   }
 
-  placeLandmines()
-  setTilesDetails()
-  renderTiles(allTiles)
-
   function displayTile(tileId) {
 
     if(!!tileId) {
@@ -171,9 +167,12 @@ $(document).ready(function() {
   }
 
   function resetGame() {
-    console.log('resetting game')
-    // Needs to be completed
+    landminePositions = [];
+    placeLandmines();
+    setTilesDetails();
+    renderTiles(allTiles);
   }
+  
 
   $(document).mousedown('.hidden', (event) => {
     const tileId = event.target.id
@@ -195,5 +194,3 @@ $(document).ready(function() {
   })
 
   $('.reset-button').on('click', resetGame)
-
-})
