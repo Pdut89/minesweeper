@@ -17,7 +17,6 @@ Just clone or download the project and run in your browser. Make sure JS is turn
 ## Contributing
 
 #### Hacktoberfest PR's welcome...
-___
 #### Suggested changes:
 * Styling edits
 * Completing the 'reset game' function
