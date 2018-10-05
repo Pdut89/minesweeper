@@ -1,16 +1,4 @@
 # Minesweeper
-### Made with JS (jQuery), Html and CSS
-
-#### Hacktoberfest PR's welcome...
-___
-#### Suggested changes:
-* Styling edits
-* Completing the 'reset game' function
-* Allow user to customise board size
-* Anything else
-
-
-# Project Title
 
 Minesweeper is a single-player puzzle video game. The objective of the game is to clear a rectangular board containing hidden "mines" or bombs without detonating any of them, with help from clues about the number of neighboring mines in each field. 
 
@@ -27,6 +15,14 @@ Just clone or download the project and run in your browser. Make sure JS is turn
 * [HTML](https://en.wikipedia.org/wiki/HTML) 
 
 ## Contributing
+
+#### Hacktoberfest PR's welcome...
+___
+#### Suggested changes:
+* Styling edits
+* Completing the 'reset game' function
+* Allow user to customise board size
+* Anything else
 
 Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
 
