@@ -158,8 +158,14 @@ $(document).ready(function() {
   }
 
   function resetGame() {
-    console.log('resetting game')
-    // Needs to be completed
+    console.log('resetting game...')
+    for (let i = 0; i < allTiles.length; i++) {
+        allTiles[i].hidden = true
+    }
+    setTilesDetails()
+    landminePositions = []
+    placeLandmines()
+    renderTiles(allTiles)
   }
 
   $(document).mousedown('.hidden', (event) => {
