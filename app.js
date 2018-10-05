@@ -26,9 +26,7 @@ $(document).ready(function() {
     else if(BOARD_SIZE == 15) {
       $('#board').css('width', '600px');
     }
-    placeLandmines();
-    setTilesDetails();
-    renderTiles(allTiles);
+    resetGame();
   }
 
   const placeLandmines = () => {
