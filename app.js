@@ -158,8 +158,9 @@ $(document).ready(function() {
   }
 
   function resetGame() {
-    console.log('resetting game')
-    // Needs to be completed
+    // The simple and racionational reseting game.
+    // Isso no Brasil a gente chama de gambiarra
+    location.reload();
   }
 
   $(document).mousedown('.hidden', (event) => {
