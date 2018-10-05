@@ -110,7 +110,7 @@ $(document).ready(function() {
 
   function displayTile(tileId) {
 
-    if(!!tileId) {
+    if(tileId) {
       const tileObj = allTiles[tileId-1]
 
       if (tileObj.flagged) {
@@ -134,7 +134,7 @@ $(document).ready(function() {
   }
 
   function flagTile(tileId) {
-    if (!!tileId) {
+    if (tileId) {
       const tileObj = allTiles[tileId-1]
       tileObj.flagged = !tileObj.flagged
       renderTiles(allTiles)
