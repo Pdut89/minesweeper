@@ -160,6 +160,9 @@ $(document).ready(function() {
   function resetGame() {
     console.log('resetting game')
     // Needs to be completed
+                if (confirm('Well done, do you want to play again')){
+        location.reload()
+      }
   }
 
   $(document).mousedown('.hidden', (event) => {
