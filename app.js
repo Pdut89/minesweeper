@@ -126,6 +126,13 @@ $(document).ready(function() {
     }
   }
 
+  function resetGame() {
+    landminePositions = [];
+    placeLandmines();
+    setTilesDetails();
+    renderTiles(allTiles);
+  }
+
   function flagTile(tileId) {
     if (!!tileId) {
       const tileObj = allTiles[tileId-1]
@@ -140,6 +147,19 @@ $(document).ready(function() {
       tile.flagged = false
     })
     renderTiles(allTiles)
+  }
+
+  function checkForWin(tiles) {
+    return tiles.filter(tile => tile.hidden && tile.type === 'safe').length === 0;
+  }
+
+  function gameWon() {
+    allTiles.forEach(tile => {
+      tile.hidden = false
+      tile.flagged = false
+    })
+    renderTiles(allTiles)
+    console.log('won');
   }
 
   function openAdjacentClearTiles(tile) {
@@ -157,11 +177,6 @@ $(document).ready(function() {
     renderTiles(allTiles)
   }
 
-  function resetGame() {
-    console.log('resetting game')
-    // Needs to be completed
-  }
-
   $(document).mousedown('.hidden', (event) => {
     const tileId = event.target.id
     switch (event.which) {
@@ -175,6 +190,9 @@ $(document).ready(function() {
             break;
         default:
             break
+    }
+    if (checkForWin(allTiles)) {
+      gameWon();
     }
   })
 
