@@ -4,8 +4,11 @@ $(document).ready(function() {
   const $board = $('#board')
 
   // Set board parameters
-  const BOARD_SIZE = 10
-  const NUM_TILES = BOARD_SIZE**2
+  let BOARD_SIZE = 12
+  let NUM_TILES = BOARD_SIZE**2
+
+  // Adjusts board size to fit tiles
+  $board.css('width', (BOARD_SIZE + 1) * 36)
 
   // Instantiate tiles array
   let allTiles = []
@@ -14,7 +17,7 @@ $(document).ready(function() {
   $board.contextmenu(() => false)
 
   // Set Landmines
-  const numLandmines = BOARD_SIZE
+  let numLandmines = BOARD_SIZE
   let landminePositions = []
 
   const placeLandmines = () => {
@@ -131,6 +134,7 @@ $(document).ready(function() {
     placeLandmines();
     setTilesDetails();
     renderTiles(allTiles);
+    $board.css('width', (parseInt(BOARD_SIZE)+1) * 36)
   }
 
   function flagTile(tileId) {
@@ -194,6 +198,11 @@ $(document).ready(function() {
     if (checkForWin(allTiles)) {
       gameWon();
     }
+  })
+
+  $('.tile-input').change(function(){
+    BOARD_SIZE = $('.tile-input').val();
+    NUM_TILES = BOARD_SIZE**2;
   })
 
   $('.reset-button').on('click', resetGame)
