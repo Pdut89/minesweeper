@@ -138,6 +138,19 @@ $(document).ready(function() {
     renderTiles(allTiles)
   }
 
+  function checkForWin(tiles) {
+    return tiles.filter(tile => tile.hidden && tile.type === 'safe').length === 0;
+  }
+  
+  function gameWon() {
+    allTiles.forEach(tile => {
+      tile.hidden = false
+      tile.flagged = false
+    })
+    renderTiles(allTiles)
+    console.log('won');
+  }
+
   function openAdjacentClearTiles(tile) {
     tile.surroundingTiles.forEach(surround => {
       const sibling = allTiles[surround-1]
@@ -154,10 +167,10 @@ $(document).ready(function() {
   }
 
   function resetGame() {
-	landminePositions = [];
-	placeLandmines();
-	setTilesDetails();
-	renderTiles(allTiles);
+    landminePositions = [];
+    placeLandmines();
+    setTilesDetails();
+    renderTiles(allTiles);
   }
   
 
@@ -175,8 +188,9 @@ $(document).ready(function() {
         default:
             break
     }
+    if (checkForWin(allTiles)) {
+      gameWon();
+    }
   })
 
   $('.reset-button').on('click', resetGame)
-  resetGame();
-})
