@@ -127,7 +127,7 @@ $(document).ready(function() {
   }
 
   function flagTile(tileId) {
-    if (!!tileId) {
+    if (tileId) {
       const tileObj = allTiles[tileId-1]
       tileObj.flagged = !tileObj.flagged
       renderTiles(allTiles)
@@ -159,7 +159,7 @@ $(document).ready(function() {
 
   function resetGame() {
     console.log('resetting game')
-    // Needs to be completed
+    location.reload() // Functionally the same as resetting the game :)
   }
 
   $(document).mousedown('.hidden', (event) => {
