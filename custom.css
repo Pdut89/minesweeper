@@ -55,7 +55,8 @@
 }
 
 .landmine {
-  background-color: red;
+  background: url('./assets/bomb.svg') no-repeat center;
+  background-size: 30px;
 }
 
 .reset-button {
