@@ -38,6 +38,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 1.6rem;
 }
 
 .hidden {
@@ -75,6 +76,7 @@
   border: none;
   outline: none;
   cursor: pointer;
+  font-size: 1.6rem;
 }
 
 .reset-button:active {
