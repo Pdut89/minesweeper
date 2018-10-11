@@ -11,7 +11,7 @@ Just clone or download the project and run in your browser. Make sure JS is turn
 ## Built With
 
 * [JQuery](https://code.jquery.com/)
-* [JS]https://www.javascript.com/) 
+* [JS](https://www.javascript.com/) 
 * [HTML](https://en.wikipedia.org/wiki/HTML) 
 
 ## Contributing
