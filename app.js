@@ -1,5 +1,8 @@
 $(document).ready(function() {
 
+  // Turns true when game won
+  let completed = false
+
   // New Board
   const $board = $('#board')
 
@@ -94,6 +97,8 @@ $(document).ready(function() {
         background = `<div id=${tile.position} class="flagged">!</div>`
       } else if (!tile.hidden && tile.type === 'safe') {
         background = `<div class="safe">${tile.numLandmines !== 0 ? tile.numLandmines : ''}</div>`
+      } else if(!tile.hidden && tile.type === 'landmine' && completed) {
+        background = `<div class="landmine-green" />`
       } else if(!tile.hidden && tile.type === 'landmine') {
         background = `<div class="landmine" />`
       }
@@ -113,24 +118,27 @@ $(document).ready(function() {
 
   function displayTile(tileId) {
 
-    if(!!tileId) {
+    if(tileId) {
       const tileObj = allTiles[tileId-1]
 
       if (tileObj.flagged) {
         return
       } else if (tileObj.type === 'landmine') {
         gameLost()
+        return
       } else if (tileObj.type === 'safe' && tileObj.numLandmines === 0) {
         openAdjacentClearTiles(tileObj)
       } else {
         tileObj.hidden = false
         renderTiles(allTiles)
       }
+      if (checkForWin(allTiles)) gameWon();
     }
   }
 
   function resetGame() {
-    clearTimeout(isAdjacentSafe)
+    completed = false
+    clearTimeout(isAdjacentSafe)   
     landminePositions = [];
     placeLandmines();
     setTilesDetails();
@@ -138,7 +146,7 @@ $(document).ready(function() {
   }
 
   function flagTile(tileId) {
-    if (!!tileId) {
+    if (tileId) {
       const tileObj = allTiles[tileId-1]
       tileObj.flagged = !tileObj.flagged
       renderTiles(allTiles)
@@ -158,12 +166,12 @@ $(document).ready(function() {
   }
 
   function gameWon() {
+    completed = true
     allTiles.forEach(tile => {
       tile.hidden = false
       tile.flagged = false
     })
     renderTiles(allTiles)
-    console.log('won');
   }
 
   function openAdjacentClearTiles(tile) {
@@ -194,9 +202,6 @@ $(document).ready(function() {
             break;
         default:
             break
-    }
-    if (checkForWin(allTiles)) {
-      gameWon();
     }
   })
 
