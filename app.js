@@ -94,7 +94,7 @@ $(document).ready(function() {
       let background = `<div id=${tile.position} class="hidden" />`
 
       if (tile.flagged) {
-        background = `<div id=${tile.position} class="flagged">!</div>`
+        background = `<div id=${tile.position} class="flagged"></div>`
       } else if (!tile.hidden && tile.type === 'safe') {
         background = `<div class="safe">${tile.numLandmines !== 0 ? tile.numLandmines : ''}</div>`
       } else if(!tile.hidden && tile.type === 'landmine' && completed) {
