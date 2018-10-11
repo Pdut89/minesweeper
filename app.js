@@ -1,10 +1,10 @@
 $(document).ready(function() {
 
-  // Turns true when game won
-  let completed = false
-
   // New Board
   const $board = $('#board')
+
+  // Turns true when game won
+  let completed = false
 
   // Set board parameters
   const BOARD_SIZE = 10
@@ -138,7 +138,7 @@ $(document).ready(function() {
 
   function resetGame() {
     completed = false
-    clearTimeout(isAdjacentSafe)   
+    clearTimeout(isAdjacentSafe)
     landminePositions = [];
     placeLandmines();
     setTilesDetails();
@@ -192,16 +192,16 @@ $(document).ready(function() {
   $(document).mousedown('.hidden', (event) => {
     const tileId = event.target.id
     switch (event.which) {
-        // Handle left click
-        case 1:
-            displayTile(tileId);
-            break;
-        case 3:
-        // Handle right click
-            flagTile(tileId)
-            break;
-        default:
-            break
+      case 1:
+      // Handle left click
+        displayTile(tileId);
+        break;
+      case 3:
+      // Handle right click
+        flagTile(tileId)
+        break;
+      default:
+        break
     }
   })
 
