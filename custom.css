@@ -3,7 +3,7 @@
   margin: 0;
   padding: 0;
   font-family: Arial;
-  font-size: 16px;
+  font-size: 10px;
 }
 
 .container {
@@ -19,15 +19,15 @@
 #board {
   display: flex;
   flex-wrap: wrap;
-  width: 400px;
+  width: 40rem;
 }
 
 .tile {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 38px;
+  width: 3.8rem;
+  height: 3.8rem;
   border: 1px solid #000;
   background-color: #fff;
 }
@@ -67,10 +67,10 @@
 }
 
 .reset-button {
-  width: 100px;
-  height: 40px;
+  width: 10rem;
+  height: 4rem;
   background-color: #fff;
-  margin-top: 40px;
+  margin-top: 4rem;
   border-radius: 2px;
   border: none;
   outline: none;
