@@ -26,9 +26,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 3.8rem;
-  height: 3.8rem;
-  border: 1px solid #000;
+  width: 4rem;
+  height: 4rem;
+  border: 0.1rem solid #000;
   background-color: #fff;
 }
 
