@@ -41,12 +41,12 @@
 }
 
 .hidden {
-  background-color: lightgrey;
+  background-color: #b5b5b5;
   cursor: pointer;
 }
 
 .flagged {
-  background-color: orange;
+  background-color: #eeff00;
   cursor: pointer;
 }
 
@@ -55,7 +55,15 @@
 }
 
 .landmine {
-  background-color: red;
+  background-color: #ff0000;
+}
+
+.landmine-green {
+  background-color: #06c100;
+}
+
+.landmine::before {
+  content: '💣';
 }
 
 .reset-button {
@@ -70,5 +78,5 @@
 }
 
 .reset-button:active {
-  background-color: lightgrey;
+  background-color: #b5b5b5;
 }
