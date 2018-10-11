@@ -20,6 +20,9 @@ $(document).ready(function() {
   const numLandmines = BOARD_SIZE
   let landminePositions = []
 
+  // isSafe animation timer
+  var isAdjacentSafe
+
   const placeLandmines = () => {
     while ( landminePositions.length < numLandmines) {
       let position = Math.random() * ((NUM_TILES-1) - 1) + 1;
@@ -135,6 +138,7 @@ $(document).ready(function() {
 
   function resetGame() {
     completed = false
+    clearTimeout(isAdjacentSafe)   
     landminePositions = [];
     placeLandmines();
     setTilesDetails();
@@ -177,7 +181,7 @@ $(document).ready(function() {
       if (sibling.type === 'safe' && sibling.hidden) {
         sibling.hidden = false
         if(sibling.numLandmines === 0) {
-          setTimeout(() => {openAdjacentClearTiles(sibling)}, 50)
+          isAdjacentSafe = setTimeout(() => {openAdjacentClearTiles(sibling)}, 50)
         }
       }
     })
