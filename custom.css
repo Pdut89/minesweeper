@@ -82,3 +82,15 @@
 .reset-button:active {
   background-color: #b5b5b5;
 }
+
+.dropdown {
+  width: 100px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  margin: 10px;
+}
+
+.dropdown-text {
+  color: white;
+}

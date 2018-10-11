@@ -7,8 +7,8 @@ $(document).ready(function() {
   const $board = $('#board')
 
   // Set board parameters
-  const BOARD_SIZE = 10
-  const NUM_TILES = BOARD_SIZE**2
+  var BOARD_SIZE = 10;
+  var NUM_TILES = BOARD_SIZE**2;
 
   // Instantiate tiles array
   let allTiles = []
@@ -17,8 +17,20 @@ $(document).ready(function() {
   $board.contextmenu(() => false)
 
   // Set Landmines
-  const numLandmines = BOARD_SIZE
-  let landminePositions = []
+  const numLandmines = BOARD_SIZE;
+  let landminePositions = [];
+
+  const switchBoxSize = () => {
+    BOARD_SIZE = parseInt($('.box-size-selection').val());
+    NUM_TILES = BOARD_SIZE**2;
+    if(BOARD_SIZE == 12){
+      $('#board').css('width', '475px');
+    }
+    else if(BOARD_SIZE == 15) {
+      $('#board').css('width', '600px');
+    }
+    resetGame();
+  }
 
   // isSafe animation timer
   var isAdjacentSafe
@@ -61,10 +73,10 @@ $(document).ready(function() {
           tile > 0 && tile <= NUM_TILES
         ))
 
-        let numLandmines = 0
+        let numLandmines = 0;
         surroundingTiles.forEach(tile => {
           if(landminePositions.includes(tile)) numLandmines += 1
-        })
+        });
 
         const tile = {
           position: i,
@@ -83,10 +95,10 @@ $(document).ready(function() {
           hidden: true,
           flagged: false
         }
-        allTiles.push(tile)
+        allTiles.push(tile);
       }
     }
-  }
+  };
 
   const renderTiles = (tiles) => {
     $board.empty()
@@ -205,6 +217,7 @@ $(document).ready(function() {
     }
   })
 
-  $('.reset-button').on('click', resetGame)
+  $('.box-size-selection').on('change', switchBoxSize);
+  $('.reset-button').on('click', resetGame);
 
 })
