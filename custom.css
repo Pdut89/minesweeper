@@ -62,6 +62,10 @@
   background-color: #06c100;
 }
 
+.landmine::before {
+  content: '💣';
+}
+
 .reset-button {
   width: 100px;
   height: 40px;
