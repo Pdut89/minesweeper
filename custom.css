@@ -2,7 +2,7 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: Arial;
+  font-family: Verdana;
   font-size: 10px;
 }
 
@@ -47,7 +47,7 @@
 }
 
 .flagged {
-  background-color: #eeff00;
+  background-color: #f7ff80;
   cursor: pointer;
 }
 
@@ -56,11 +56,11 @@
 }
 
 .landmine {
-  background-color: #ff0000;
+  background-color: #FA8072;
 }
 
 .landmine-green {
-  background-color: #06c100;
+  background-color: #84ff80;
 }
 
 .landmine::before {
