@@ -81,6 +81,7 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     }
 
+
     const renderTiles = (tiles) => {
         board.innerHTML = '';
         const tilesNodes = document.createDocumentFragment();
@@ -91,7 +92,6 @@ document.addEventListener('DOMContentLoaded', function() {
             if (tile.flagged) {
                 background.id = tile.position;
                 background.className = 'flagged';
-                background.innerHTML = '!';
             } else if (!tile.hidden && tile.type === 'safe') {
                 background.className = tile.type;
                 background.innerHTML =

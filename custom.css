@@ -47,8 +47,11 @@
 }
 
 .flagged {
-  background-color: #eeff00;
   cursor: pointer;
+}
+
+.flagged::before {
+  content: '🚩';
 }
 
 .safe {
