@@ -1,21 +1,21 @@
 document.addEventListener('DOMContentLoaded', function() {
     let completed = false
     const board = document.querySelector('#board')
-  
+
     const BOARD_SIZE = 10
     const NUM_TILES = BOARD_SIZE**2
-  
+
     let allTiles = []
-  
+
     board.addEventListener('contextmenu', (evt) => {
         evt.preventDefault();
     });
-  
+
     const numLandmines = BOARD_SIZE
     let landminePositions = []
-  
+
     let isAdjacentSafe
-  
+
     const placeLandmines = () => {
       while ( landminePositions.length < numLandmines) {
         let position = Math.random() * ((NUM_TILES-1) - 1) + 1;
@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!landminePositions.includes(position)) landminePositions.push(position)
       }
     }
-  
+
     // Generates array of detailed tiles
     const setTilesDetails = () => {
       allTiles = []
@@ -48,17 +48,17 @@ document.addEventListener('DOMContentLoaded', function() {
               i-1, i+1, i-(BOARD_SIZE+1), i-(BOARD_SIZE-1), i+(BOARD_SIZE-1), i+(BOARD_SIZE+1)
             )
           }
-  
+
           //Remove tiles outside board
           surroundingTiles = surroundingTiles.filter(tile => (
             tile > 0 && tile <= NUM_TILES
           ))
-  
+
           let numLandmines = 0
           surroundingTiles.forEach(tile => {
             if(landminePositions.includes(tile)) numLandmines += 1
           })
-  
+
           const tile = {
             position: i,
             type: 'safe',
@@ -83,53 +83,51 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
     const renderTiles = (tiles) => {
-        board.innerHTML = '';
-        const tilesNodes = document.createDocumentFragment();
+      board.innerHTML = '';
+      const tilesNodes = document.createDocumentFragment();
 
-        tiles.forEach((tile) => {
-            let background = document.createElement('div');
+      tiles.forEach((tile) => {
+        let background = document.createElement('div');
 
-            if (tile.flagged) {
-                background.id = tile.position;
-                background.className = 'flagged';
-            } else if (!tile.hidden && tile.type === 'safe') {
-                background.className = tile.type;
-                background.innerHTML =
-                    tile.numLandmines !== 0 ? tile.numLandmines : '';
-            } else if(!tile.hidden && tile.type === 'landmine' && completed) {
-                background.className = 'landmine-green';
-            } else if (!tile.hidden && tile.type === 'landmine') {
-                background.className = tile.type;
-            } else {
-                background.id = tile.position;
-                background.className = 'hidden';
-            }
+        if (tile.flagged) {
+          background.id = tile.position;
+          background.className = 'flagged';
+        } else if (!tile.hidden && tile.type === 'safe') {
+          background.className = tile.type;
+          background.innerHTML = tile.numLandmines !== 0 ? tile.numLandmines : '';
+        } else if(!tile.hidden && tile.type === 'landmine' && completed) {
+          background.className = 'landmine-green';
+        } else if (!tile.hidden && tile.type === 'landmine') {
+          background.className = tile.type;
+        } else {
+          background.id = tile.position;
+          background.className = 'hidden';
+        }
 
-            const tileNode = document.createElement('div');
-            tileNode.className = 'tile';
-            tileNode.append(background);
+        const tileNode = document.createElement('div');
+        tileNode.className = 'tile';
+        tileNode.append(background);
 
-            tilesNodes.appendChild(tileNode);
-        });
+        tilesNodes.appendChild(tileNode);
+      });
 
-        board.appendChild(tilesNodes);
+      board.appendChild(tilesNodes);
     };
-  
+
     placeLandmines()
     setTilesDetails()
     renderTiles(allTiles)
-  
+
     function displayTile(tileId) {
-  
-      if(tileId) {
+      if (tileId) {
         const tileObj = allTiles[tileId-1]
-  
         if (tileObj.flagged) {
           return
         } else if (tileObj.type === 'landmine') {
           gameLost()
           return
         } else if (tileObj.type === 'safe' && tileObj.numLandmines === 0) {
+          tileObj.hidden = false
           openAdjacentClearTiles(tileObj)
         } else {
           tileObj.hidden = false
@@ -138,16 +136,16 @@ document.addEventListener('DOMContentLoaded', function() {
         if (checkForWin(allTiles)) gameWon();
       }
     }
-  
+
     function resetGame() {
       completed = false
-      clearTimeout(isAdjacentSafe)   
+      clearTimeout(isAdjacentSafe)
       landminePositions = [];
       placeLandmines();
       setTilesDetails();
       renderTiles(allTiles);
     }
-  
+
     function flagTile(tileId) {
       if (tileId) {
         const tileObj = allTiles[tileId-1]
@@ -155,7 +153,7 @@ document.addEventListener('DOMContentLoaded', function() {
         renderTiles(allTiles)
       }
     }
-  
+
     function gameLost() {
       allTiles.forEach(tile => {
         tile.hidden = false
@@ -163,11 +161,11 @@ document.addEventListener('DOMContentLoaded', function() {
       })
       renderTiles(allTiles)
     }
-  
+
     function checkForWin(tiles) {
       return tiles.filter(tile => tile.hidden && tile.type === 'safe').length === 0;
     }
-  
+
     function gameWon() {
       completed = true
       allTiles.forEach(tile => {
@@ -176,11 +174,11 @@ document.addEventListener('DOMContentLoaded', function() {
       })
       renderTiles(allTiles)
     }
-  
+
     function openAdjacentClearTiles(tile) {
       tile.surroundingTiles.forEach(surround => {
         const sibling = allTiles[surround-1]
-  
+
         if (sibling.type === 'safe' && sibling.hidden) {
           sibling.hidden = false
           if(sibling.numLandmines === 0) {
@@ -188,28 +186,26 @@ document.addEventListener('DOMContentLoaded', function() {
           }
         }
       })
-  
+
       renderTiles(allTiles)
     }
-  
+
     document.addEventListener('mousedown', (event) => {
       const tileId = event.target.id
       switch (event.which) {
-          // Handle left click
-          case 1:
-              displayTile(tileId);
-              break;
-          case 3:
-          // Handle right click
-              flagTile(tileId)
-              break;
-          default:
-              break
+        // Handle left click
+        case 1:
+          displayTile(tileId);
+          break;
+        case 3:
+        // Handle right click
+          flagTile(tileId)
+          break;
+        default:
+          break
       }
     })
-  
-    document
-        .querySelector('.reset-button')
-        .addEventListener('click', resetGame);
+
+    document.querySelector('.reset-button')
+      .addEventListener('click', resetGame);
   })
-  
