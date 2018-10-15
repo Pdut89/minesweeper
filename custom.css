@@ -16,6 +16,17 @@
   background-color: #000;
 }
 
+#title_bar {
+  margin: auto;
+  width: 50%;
+}
+
+#title {
+  text-align: center;
+  color:white;
+  font-size: 6em;
+}
+
 #board {
   display: flex;
   flex-wrap: wrap;
