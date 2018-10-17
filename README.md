@@ -2,6 +2,8 @@
 
 [Minesweeper](https://en.wikipedia.org/wiki/Microsoft_Minesweeper) is a single-player puzzle video game. The objective of the game is to clear a rectangular board containing hidden "mines" or bombs without detonating any of them, with help from clues about the number of neighboring mines in each field.
 
+[Play online](https://minesweeper-js.netlify.com/)
+
 ## Getting Started
 
 Just clone or download the project and run in your browser. Make sure JS is turned on.
