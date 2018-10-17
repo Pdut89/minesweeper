@@ -8,8 +8,8 @@ document.addEventListener('DOMContentLoaded', function() {
     let allTiles = []
 
     board.addEventListener('contextmenu', (evt) => {
-        evt.preventDefault();
-    });
+        evt.preventDefault()
+    })
 
     const numLandmines = BOARD_SIZE
     let landminePositions = []
@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const placeLandmines = () => {
       while ( landminePositions.length < numLandmines) {
-        let position = Math.random() * ((NUM_TILES-1) - 1) + 1;
+        let position = Math.random() * ((NUM_TILES-1) - 1) + 1
         position = Math.floor(position)
         if (!landminePositions.includes(position)) landminePositions.push(position)
       }
@@ -83,36 +83,36 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
     const renderTiles = (tiles) => {
-      board.innerHTML = '';
-      const tilesNodes = document.createDocumentFragment();
+      board.innerHTML = ''
+      const tilesNodes = document.createDocumentFragment()
 
       tiles.forEach((tile) => {
-        let background = document.createElement('div');
+        let background = document.createElement('div')
 
         if (tile.flagged) {
-          background.id = tile.position;
-          background.className = 'flagged';
+          background.id = tile.position
+          background.className = 'flagged'
         } else if (!tile.hidden && tile.type === 'safe') {
-          background.className = tile.type;
-          background.innerHTML = tile.numLandmines !== 0 ? tile.numLandmines : '';
+          background.className = tile.type
+          background.innerHTML = tile.numLandmines !== 0 ? tile.numLandmines : ''
         } else if(!tile.hidden && tile.type === 'landmine' && completed) {
-          background.className = 'landmine-green';
+          background.className = 'landmine-green'
         } else if (!tile.hidden && tile.type === 'landmine') {
-          background.className = tile.type;
+          background.className = tile.type
         } else {
-          background.id = tile.position;
-          background.className = 'hidden';
+          background.id = tile.position
+          background.className = 'hidden'
         }
 
-        const tileNode = document.createElement('div');
-        tileNode.className = 'tile';
-        tileNode.append(background);
+        const tileNode = document.createElement('div')
+        tileNode.className = 'tile'
+        tileNode.append(background)
 
-        tilesNodes.appendChild(tileNode);
-      });
+        tilesNodes.appendChild(tileNode)
+      })
 
-      board.appendChild(tilesNodes);
-    };
+      board.appendChild(tilesNodes)
+    }
 
     placeLandmines()
     setTilesDetails()
@@ -133,17 +133,17 @@ document.addEventListener('DOMContentLoaded', function() {
           tileObj.hidden = false
           renderTiles(allTiles)
         }
-        if (checkForWin(allTiles)) gameWon();
+        if (checkForWin(allTiles)) gameWon()
       }
     }
 
     function resetGame() {
       completed = false
       clearTimeout(isAdjacentSafe)
-      landminePositions = [];
-      placeLandmines();
-      setTilesDetails();
-      renderTiles(allTiles);
+      landminePositions = []
+      placeLandmines()
+      setTilesDetails()
+      renderTiles(allTiles)
     }
 
     function flagTile(tileId) {
@@ -163,7 +163,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function checkForWin(tiles) {
-      return tiles.filter(tile => tile.hidden && tile.type === 'safe').length === 0;
+      return tiles.filter(tile => tile.hidden && tile.type === 'safe').length === 0
     }
 
     function gameWon() {
@@ -195,17 +195,17 @@ document.addEventListener('DOMContentLoaded', function() {
       switch (event.which) {
         // Handle left click
         case 1:
-          displayTile(tileId);
-          break;
+          displayTile(tileId)
+          break
         case 3:
         // Handle right click
           flagTile(tileId)
-          break;
+          break
         default:
           break
       }
     })
 
     document.querySelector('.reset-button')
-      .addEventListener('click', resetGame);
+      .addEventListener('click', resetGame)
   })
