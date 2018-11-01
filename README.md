@@ -18,14 +18,13 @@ Just clone or download the project and run in your browser. Make sure JS is turn
 
 ## Contributing
 
-#### Hacktoberfest PR's welcome...
 #### Suggested changes:
 * Styling edits
 * Completing the 'reset game' function
 * Allow user to customise board size
 * Anything else
 
-Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
+Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests.
 
 ## Authors
 
