@@ -8,8 +8,31 @@
   </head>
   <body>
     <div class="container">
+      <div class="board-sizes">
+        <button
+          class="button board-size-button js-board-size"
+          data-size-x="8"
+          data-size-y="8"
+        >
+          8x8
+        </button>
+        <button
+          class="button board-size-button js-board-size"
+          data-size-x="16"
+          data-size-y="16"
+        >
+          16x16
+        </button>
+        <button
+          class="button board-size-button js-board-size"
+          data-size-x="32"
+          data-size-y="16"
+        >
+          32x16
+        </button>
+      </div>
       <div id="board"></div>
-      <button class="reset-button">Reset</button>
+      <button class="button js-reset-button">Reset</button>
     </div>
   </body>
 </html>
