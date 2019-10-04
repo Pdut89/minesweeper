@@ -14,6 +14,7 @@
   align-items: center;
   justify-content: center;
   background-color: #000;
+
 }
 
 #board {
@@ -70,7 +71,14 @@
   content: '💣';
 }
 
-.reset-button {
+.board-sizes {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  width: 34em;
+}
+
+.button {
   width: 10rem;
   height: 4rem;
   background-color: #fff;
@@ -82,6 +90,6 @@
   font-size: 1.6rem;
 }
 
-.reset-button:active {
+.button:active {
   background-color: #b5b5b5;
 }

@@ -1,57 +1,51 @@
 document.addEventListener('DOMContentLoaded', function() {
     let completed = false
     const board = document.querySelector('#board')
+    const boardSizeButtons = document.querySelectorAll('.js-board-size')
 
-    const BOARD_SIZE = 10
-    const NUM_TILES = BOARD_SIZE**2
-
+    let boardSizeX = 8
+    let boardSizeY = 8
+    let numTiles = boardSizeX * boardSizeY
+    let numLandmines = boardSizeX
     let allTiles = []
+    let landminePositions = []
+    let isAdjacentSafe
 
+    Array.from(boardSizeButtons).forEach(button => {
+      button.addEventListener('click', handleBoardSizeChange)
+    })
     board.addEventListener('contextmenu', (evt) => {
         evt.preventDefault()
     })
 
-    const numLandmines = BOARD_SIZE
-    let landminePositions = []
-
-    let isAdjacentSafe
-
-    const placeLandmines = () => {
-      while ( landminePositions.length < numLandmines) {
-        let position = Math.random() * ((NUM_TILES-1) - 1) + 1
-        position = Math.floor(position)
-        if (!landminePositions.includes(position)) landminePositions.push(position)
-      }
-    }
-
     // Generates array of detailed tiles
     const setTilesDetails = () => {
       allTiles = []
-      for(let i=1; i <= NUM_TILES; i++) {
+      for(let i=1; i <= numTiles; i++) {
         // Make detailed mineless tiles
         if(!landminePositions.includes(i)) {
           let surroundingTiles = []
-          surroundingTiles.push(i-BOARD_SIZE, i+BOARD_SIZE)
+          surroundingTiles.push(i-boardSizeX, i+boardSizeX)
           // For tiles on the left:
-          if ( (i-1)%BOARD_SIZE === 0 ) {
+          if ( (i-1)%boardSizeX === 0 ) {
             surroundingTiles.push(
-              i+1, i-(BOARD_SIZE-1), i+(BOARD_SIZE+1)
+              i+1, i-(boardSizeX-1), i+(boardSizeX+1)
             )
           // For tiles on right:
-          } else if ( i%BOARD_SIZE === 0) {
+          } else if ( i%boardSizeX === 0) {
             surroundingTiles.push(
-              i-1, i-(BOARD_SIZE+1), i+(BOARD_SIZE-1)
+              i-1, i-(boardSizeX+1), i+(boardSizeX-1)
             )
           // For surrounded tiles
           } else {
             surroundingTiles.push(
-              i-1, i+1, i-(BOARD_SIZE+1), i-(BOARD_SIZE-1), i+(BOARD_SIZE-1), i+(BOARD_SIZE+1)
+              i-1, i+1, i-(boardSizeX+1), i-(boardSizeX-1), i+(boardSizeX-1), i+(boardSizeX+1)
             )
           }
 
           //Remove tiles outside board
           surroundingTiles = surroundingTiles.filter(tile => (
-            tile > 0 && tile <= NUM_TILES
+            tile > 0 && tile <= numTiles
           ))
 
           let numLandmines = 0
@@ -111,6 +105,7 @@ document.addEventListener('DOMContentLoaded', function() {
         tilesNodes.appendChild(tileNode)
       })
 
+      board.style.width = 4 * boardSizeX + 'rem'
       board.appendChild(tilesNodes)
     }
 
@@ -190,6 +185,26 @@ document.addEventListener('DOMContentLoaded', function() {
       renderTiles(allTiles)
     }
 
+    function handleBoardSizeChange({ target }) {
+      const x = target.getAttribute('data-size-x')
+      const y = target.getAttribute('data-size-y')
+
+      boardSizeX = x
+      boardSizeY = y
+      numTiles = boardSizeX * boardSizeY
+      numLandmines = (boardSizeX * 2) ^ 2
+
+      resetGame()
+    }
+
+    function placeLandmines() {
+      while ( landminePositions.length < numLandmines) {
+        let position = Math.random() * ((numTiles-1) - 1) + 1
+        position = Math.floor(position)
+        if (!landminePositions.includes(position)) landminePositions.push(position)
+      }
+    }
+
     document.addEventListener('mousedown', (event) => {
       const tileId = event.target.id
       switch (event.which) {
@@ -206,6 +221,6 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     })
 
-    document.querySelector('.reset-button')
+    document.querySelector('.js-reset-button')
       .addEventListener('click', resetGame)
   })
