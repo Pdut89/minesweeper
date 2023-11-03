@@ -31,11 +31,23 @@ main {
 	height: 100%;
 	background-color: #b8b8b8;
 	cursor: pointer;
-	font-size: 1.6rem;
+	font-size: 2rem;
+	font-weight: 700;
 }
 
 #board li button.exposed {
 	background-color: #ffffff;
+}
+
+#board li button.exposed:disabled {
+	border: 0.1rem solid #e3e3e3;
+	outline: none;
+	pointer-events: none;
+}
+
+#board li button.exposed.mine {
+	background-color: #f46f46;
+	color: #ffffff;
 }
 
 #reset-button {

@@ -6,7 +6,8 @@
 		"strict": true,
 		"skipLibCheck": true,
 		"outDir": "./dist",
-		"rootDir": "./src"
+		"rootDir": "./src",
+		"module": "CommonJS"
 	},
 	"include": ["./src"],
 	"exclude": ["node_modules"]

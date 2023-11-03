@@ -1,17 +1,50 @@
+const enum TILE_TYPE {
+	SAFE,
+	MINE,
+}
+
 interface Tile {
-	type: 'safe' | 'mine'
+	type: TILE_TYPE
 	adjacentTileIndexes: number[]
 	mineCount: number | undefined
 	isExposed: boolean
 	isFlagged: boolean
 }
 
-interface GameState {
-	tiles: Tile[]
+const enum GAME_STATUS {
+	ACTIVE,
+	WON,
+	LOST,
 }
 
-let BOARD_SIZE_X: number = 8
-let BOARD_SIZE_Y: number = 8
+interface GameState {
+	tiles: Tile[]
+	status: GAME_STATUS
+}
+
+let BOARD_SIZE_X: number = 10
+let BOARD_SIZE_Y: number = 10
+
+let callCount: number = 0
+let globalVisited: number[] = []
+
+const FLAG_EMOJI: string = '&#128681;'
+const MINE_EMOJI: string = '&#x1F4A3;'
+
+const COLOR_GRADIENT: string[] = [
+	'#0000ff',
+	'#2ab500',
+	'#ff9900',
+	'#ff0000',
+	'#ff0000',
+	'#ff0000',
+	'#ff0000',
+	'#ff0000',
+	'#ff0000',
+]
+
+// Calculates column index of a tile.
+const getTileColumnIndex = (index: number): number => index % BOARD_SIZE_X
 
 // Calculates row index of a tile.
 const getTileRowIndex = (index: number): number =>
@@ -43,6 +76,7 @@ const getAdjacentTileIndexes = (tileIndex: number): number[] => {
 		.filter((index) => index !== tileIndex)
 }
 
+// Creates a new set of tiles
 const createTileSet = (): Tile[] => {
 	const numTiles = BOARD_SIZE_X * BOARD_SIZE_Y
 	const numMines = BOARD_SIZE_X
@@ -66,7 +100,7 @@ const createTileSet = (): Tile[] => {
 			  ).length
 
 		return {
-			type: mineIndexes.includes(index) ? 'mine' : 'safe',
+			type: mineIndexes.includes(index) ? TILE_TYPE.MINE : TILE_TYPE.SAFE,
 			adjacentTileIndexes,
 			mineCount,
 			isExposed: false,
@@ -75,62 +109,27 @@ const createTileSet = (): Tile[] => {
 	})
 }
 
-// 		tiles.forEach((tile) => {
-// 			let background = document.createElement('div')
-
-// 			if (tile.flagged) {
-// 				background.id = tile.position
-// 				background.className = 'flagged'
-// 			} else if (!tile.hidden && tile.type === 'safe') {
-// 				background.className = tile.type
-// 				background.innerHTML = tile.numLandmines !== 0 ? tile.numLandmines : ''
-// 			} else if (!tile.hidden && tile.type === 'landmine' && completed) {
-// 				background.className = 'landmine-green'
-// 			} else if (!tile.hidden && tile.type === 'landmine') {
-// 				background.className = tile.type
-// 			} else {
-// 				background.id = tile.position
-// 				background.className = 'hidden'
-// 			}
-
-// 			const tileNode = document.createElement('div')
-// 			tileNode.className = 'tile'
-// 			tileNode.append(background)
-
-// 			tilesNodes.appendChild(tileNode)
-// 		})
-
-// 		board.style.width = 4 * boardSizeX + 'rem'
-// 		board.appendChild(tilesNodes)
-// 	}
-
-const GAME_STATE: GameState = {
+// Initial game state
+let GAME_STATE: GameState = {
+	status: GAME_STATUS.ACTIVE,
 	tiles: createTileSet(),
-}
-
-const handleFlagTile = (event: MouseEvent) => {
-	event.preventDefault()
-	const target = event.target as HTMLElement
-	const dataIndex = target.getAttribute('data-index')
-	console.log({ dataIndex })
-}
-
-const handleExposeTile = (event: MouseEvent) => {
-	const target = event.target as HTMLElement
-	const dataIndex = target.getAttribute('data-index')
-	console.log({ dataIndex })
 }
 
 document.addEventListener('DOMContentLoaded', function () {
 	const board: HTMLDivElement = document.querySelector('#board')!
-	board.addEventListener('contextmenu', handleFlagTile)
-	board.addEventListener('click', handleExposeTile)
+	board.addEventListener('contextmenu', (event) =>
+		handleBoardEvent(event, handleFlagTile)
+	)
+	board.addEventListener('click', (event) =>
+		handleBoardEvent(event, handleExposeTile)
+	)
 
 	// Set board grid styles
 	board.style.gridTemplateColumns = `repeat(${BOARD_SIZE_X}, 1fr)`
 	board.style.gridTemplateRows = `repeat(${BOARD_SIZE_Y}, 1fr)`
 
 	const renderTiles = () => {
+		board.innerHTML = ''
 		const tilesNodes = document.createDocumentFragment()
 
 		GAME_STATE.tiles.forEach((tile, index) => {
@@ -140,15 +139,21 @@ document.addEventListener('DOMContentLoaded', function () {
 			tileElement.dataset.index = index.toString()
 
 			if (tile.isExposed) {
-				tileElement.className = 'exposed'
+				tileElement.disabled = true
+				tileElement.classList.add('exposed')
 
-				if (tile.mineCount) {
-					tileElement.innerHTML = tile.mineCount.toString()
+				if (tile.type === TILE_TYPE.SAFE) {
+					if (tile.mineCount) {
+						tileElement.innerHTML = tile.mineCount.toString()
+						tileElement.style.color = COLOR_GRADIENT[tile.mineCount - 1]
+					}
+				} else if (tile.type === TILE_TYPE.MINE) {
+					tileElement.innerHTML = MINE_EMOJI
+					tileElement.classList.add('mine')
 				}
 			}
-
 			if (tile.isFlagged) {
-				tileElement.innerHTML = '&#128681;'
+				tileElement.innerHTML = FLAG_EMOJI
 			}
 
 			listItem.append(tileElement)
@@ -158,241 +163,109 @@ document.addEventListener('DOMContentLoaded', function () {
 		board.appendChild(tilesNodes)
 	}
 
-	renderTiles()
+	// Sets the new "GAME_STATE" and re-renders the tiles
+	const updateGameState = (newState?: GameState): void => {
+		GAME_STATE = { ...GAME_STATE, ...newState }
+		renderTiles()
+	}
+
+	// Initial render
+	updateGameState()
+
+	// Handle left or right click on board
+	const handleBoardEvent = (event: MouseEvent, callback: Function): void => {
+		event.preventDefault()
+		const target = event.target as HTMLElement
+		const dataIndex = target.getAttribute('data-index')
+		if (!dataIndex) return
+		callback(parseInt(dataIndex))
+	}
+
+	// Toggle flag if tile is not exposed
+	const handleFlagTile = (dataIndex: number): void => {
+		const updatedTiles = GAME_STATE.tiles.map((tile: Tile, index: number) => {
+			if (tile.isExposed || index !== dataIndex) return tile
+			return {
+				...tile,
+				isFlagged: !tile.isFlagged,
+			}
+		})
+		updateGameState({
+			tiles: updatedTiles,
+			status: GAME_STATE.status,
+		})
+	}
+
+	const findIndexesToExpose = (tiles: Tile[], index: number): number[] => {
+		callCount++
+		const surroundingIndexes = getAdjacentTileIndexes(index)
+		const toExplore = surroundingIndexes.filter(
+			(i) => !globalVisited.includes(i)
+		)
+
+		// Isolate neighbours with no mine count so they can be explore recursively
+		const { zeroIndexes, numberedIndexes } = toExplore.reduce(
+			(
+				acc: { zeroIndexes: number[]; numberedIndexes: number[] },
+				exploreIndex: number
+			) => {
+				const { mineCount } = tiles[exploreIndex]
+				if (typeof mineCount === 'number') {
+					return {
+						...acc,
+						...(mineCount === 0
+							? {
+									zeroIndexes: [...acc.zeroIndexes, exploreIndex],
+							  }
+							: {
+									numberedIndexes: [...acc.numberedIndexes, exploreIndex],
+							  }),
+					}
+				}
+				return acc
+			},
+			{ zeroIndexes: [], numberedIndexes: [] }
+		)
+
+		globalVisited = [...globalVisited, ...surroundingIndexes, index]
+
+		const children = zeroIndexes.map((i) => findIndexesToExpose(tiles, i))
+
+		return [...numberedIndexes, ...zeroIndexes, ...children.flat()]
+	}
+
+	function uniqueFilter(value, index, self) {
+		return self.indexOf(value) === index
+	}
+
+	const exposeSurroundingTiles = (tiles: Tile[], index: number): Tile[] => {
+		const indexesToExpose = findIndexesToExpose(tiles, index)
+		console.log({ indexesToExpose, callCount })
+		globalVisited = []
+		callCount = 0
+	}
+
+	// Expose selected tile and update game status accordingly
+	const handleExposeTile = (dataIndex: number): void => {
+		const { tiles } = GAME_STATE
+		const tile = GAME_STATE.tiles[dataIndex]
+		if (tile.isFlagged || tile.isExposed) return
+
+		const isSafeTile = tile.type === TILE_TYPE.SAFE
+		const newStatus = isSafeTile ? GAME_STATE.status : GAME_STATUS.LOST
+		const isEmptyTile = isSafeTile && !tile.mineCount
+
+		const baseTiles = isEmptyTile
+			? exposeSurroundingTiles(tiles, dataIndex)
+			: tiles
+
+		updateGameState({
+			tiles: [
+				...tiles.slice(0, dataIndex),
+				{ ...tile, isExposed: true },
+				...tiles.slice(dataIndex + 1),
+			],
+			status: newStatus,
+		})
+	}
 })
-
-// document.addEventListener('DOMContentLoaded', function () {
-// 	let completed = false
-
-// 	let boardSizeX = 8
-// 	let boardSizeY = 8
-// 	let numTiles = boardSizeX * boardSizeY
-// 	let numLandmines = boardSizeX
-// 	let allTiles = []
-// 	let landminePositions = []
-// 	let isAdjacentSafe
-
-// 	Array.from(boardSizeButtons).forEach((button) => {
-// 		button.addEventListener('click', handleBoardSizeChange)
-// 	})
-
-// 	// Generates array of detailed tiles
-// 	const setTilesDetails = () => {
-// 		allTiles = []
-// 		for (let i = 1; i <= numTiles; i++) {
-// 			// Make detailed mineless tiles
-// 			if (!landminePositions.includes(i)) {
-// 				let surroundingTiles = []
-// 				surroundingTiles.push(i - boardSizeX, i + boardSizeX)
-// 				// For tiles on the left:
-// 				if ((i - 1) % boardSizeX === 0) {
-// 					surroundingTiles.push(
-// 						i + 1,
-// 						i - (boardSizeX - 1),
-// 						i + (boardSizeX + 1)
-// 					)
-// 					// For tiles on right:
-// 				} else if (i % boardSizeX === 0) {
-// 					surroundingTiles.push(
-// 						i - 1,
-// 						i - (boardSizeX + 1),
-// 						i + (boardSizeX - 1)
-// 					)
-// 					// For surrounded tiles
-// 				} else {
-// 					surroundingTiles.push(
-// 						i - 1,
-// 						i + 1,
-// 						i - (boardSizeX + 1),
-// 						i - (boardSizeX - 1),
-// 						i + (boardSizeX - 1),
-// 						i + (boardSizeX + 1)
-// 					)
-// 				}
-
-// 				//Remove tiles outside board
-// 				surroundingTiles = surroundingTiles.filter(
-// 					(tile) => tile > 0 && tile <= numTiles
-// 				)
-
-// 				let numLandmines = 0
-// 				surroundingTiles.forEach((tile) => {
-// 					if (landminePositions.includes(tile)) numLandmines += 1
-// 				})
-
-// 				const tile = {
-// 					position: i,
-// 					type: 'safe',
-// 					numLandmines,
-// 					surroundingTiles,
-// 					hidden: true,
-// 					flagged: false,
-// 				}
-// 				allTiles.push(tile)
-// 				// Make detailes mine tiles
-// 			} else {
-// 				const tile = {
-// 					position: i,
-// 					type: 'landmine',
-// 					hidden: true,
-// 					flagged: false,
-// 				}
-// 				allTiles.push(tile)
-// 			}
-// 		}
-// 	}
-
-// 	const renderTiles = (tiles) => {
-// 		board.innerHTML = ''
-// 		const tilesNodes = document.createDocumentFragment()
-
-// 		tiles.forEach((tile) => {
-// 			let background = document.createElement('div')
-
-// 			if (tile.flagged) {
-// 				background.id = tile.position
-// 				background.className = 'flagged'
-// 			} else if (!tile.hidden && tile.type === 'safe') {
-// 				background.className = tile.type
-// 				background.innerHTML = tile.numLandmines !== 0 ? tile.numLandmines : ''
-// 			} else if (!tile.hidden && tile.type === 'landmine' && completed) {
-// 				background.className = 'landmine-green'
-// 			} else if (!tile.hidden && tile.type === 'landmine') {
-// 				background.className = tile.type
-// 			} else {
-// 				background.id = tile.position
-// 				background.className = 'hidden'
-// 			}
-
-// 			const tileNode = document.createElement('div')
-// 			tileNode.className = 'tile'
-// 			tileNode.append(background)
-
-// 			tilesNodes.appendChild(tileNode)
-// 		})
-
-// 		board.style.width = 4 * boardSizeX + 'rem'
-// 		board.appendChild(tilesNodes)
-// 	}
-
-// 	placeLandmines()
-// 	setTilesDetails()
-// 	renderTiles(allTiles)
-
-// 	function displayTile(tileId) {
-// 		if (tileId) {
-// 			const tileObj = allTiles[tileId - 1]
-// 			if (tileObj.flagged) {
-// 				return
-// 			} else if (tileObj.type === 'landmine') {
-// 				gameLost()
-// 				return
-// 			} else if (tileObj.type === 'safe' && tileObj.numLandmines === 0) {
-// 				tileObj.hidden = false
-// 				openAdjacentClearTiles(tileObj)
-// 			} else {
-// 				tileObj.hidden = false
-// 				renderTiles(allTiles)
-// 			}
-// 			if (checkForWin(allTiles)) gameWon()
-// 		}
-// 	}
-
-// 	function resetGame() {
-// 		completed = false
-// 		clearTimeout(isAdjacentSafe)
-// 		landminePositions = []
-// 		placeLandmines()
-// 		setTilesDetails()
-// 		renderTiles(allTiles)
-// 	}
-
-// 	function flagTile(tileId) {
-// 		if (tileId) {
-// 			const tileObj = allTiles[tileId - 1]
-// 			tileObj.flagged = !tileObj.flagged
-// 			renderTiles(allTiles)
-// 		}
-// 	}
-
-// 	function gameLost() {
-// 		allTiles.forEach((tile) => {
-// 			tile.hidden = false
-// 			tile.flagged = false
-// 		})
-// 		renderTiles(allTiles)
-// 	}
-
-// 	function checkForWin(tiles) {
-// 		return (
-// 			tiles.filter((tile) => tile.hidden && tile.type === 'safe').length === 0
-// 		)
-// 	}
-
-// 	function gameWon() {
-// 		completed = true
-// 		allTiles.forEach((tile) => {
-// 			tile.hidden = false
-// 			tile.flagged = false
-// 		})
-// 		renderTiles(allTiles)
-// 	}
-
-// 	function openAdjacentClearTiles(tile) {
-// 		tile.surroundingTiles.forEach((surround) => {
-// 			const sibling = allTiles[surround - 1]
-
-// 			if (sibling.type === 'safe' && sibling.hidden) {
-// 				sibling.hidden = false
-// 				if (sibling.numLandmines === 0) {
-// 					isAdjacentSafe = setTimeout(() => {
-// 						openAdjacentClearTiles(sibling)
-// 					}, 50)
-// 				}
-// 			}
-// 		})
-
-// 		renderTiles(allTiles)
-// 	}
-
-// 	function handleBoardSizeChange({ target }) {
-// 		const x = target.getAttribute('data-size-x')
-// 		const y = target.getAttribute('data-size-y')
-
-// 		boardSizeX = x
-// 		boardSizeY = y
-// 		numTiles = boardSizeX * boardSizeY
-// 		numLandmines = (boardSizeX * 2) ^ 2
-
-// 		resetGame()
-// 	}
-
-// 	function placeLandmines() {
-// 		while (landminePositions.length < numLandmines) {
-// 			let position = Math.random() * (numTiles - 1 - 1) + 1
-// 			position = Math.floor(position)
-// 			if (!landminePositions.includes(position))
-// 				landminePositions.push(position)
-// 		}
-// 	}
-
-// 	document.addEventListener('mousedown', (event) => {
-// 		const tileId = event.target.id
-// 		switch (event.which) {
-// 			// Handle left click
-// 			case 1:
-// 				displayTile(tileId)
-// 				break
-// 			case 3:
-// 				// Handle right click
-// 				flagTile(tileId)
-// 				break
-// 			default:
-// 				break
-// 		}
-// 	})
-
-// 	document
-// 		.querySelector('.js-reset-button')
-// 		.addEventListener('click', resetGame)
-// })
