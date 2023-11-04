@@ -82,7 +82,7 @@ ul {
 	margin: 0.5rem;
 }
 
-.button:hover {
+.button:hover:not(:active) {
 	opacity: 1;
 }
 
