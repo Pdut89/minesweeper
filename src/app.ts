@@ -34,9 +34,9 @@ const MINE_EMOJI: string = '&#x1F4A3;'
 
 const LEVELS: Record<string, Level> = {
 	beginner: {
-		boardSizeX: 16,
-		boardSizeY: 16,
-		numMines: 40,
+		boardSizeX: 15,
+		boardSizeY: 8,
+		numMines: 10,
 	},
 	intermediate: {
 		boardSizeX: 16,
@@ -71,48 +71,45 @@ const DEFAULT_GAME_STATE: GameState = {
 // Initial game state
 let GAME_STATE: GameState = DEFAULT_GAME_STATE
 
-// Calculates column index of a tile.
-function getTileColumnIndex(index: number): number {
-	return index % GAME_STATE.level.boardSizeX
-}
-
 // Calculates row index of a tile.
-function getTileRowIndex(index: number): number {
-	return Math.floor(index / GAME_STATE.level.boardSizeX)
+function getTileRowIndex(index: number, boardSizeX: number): number {
+	return Math.floor(index / boardSizeX)
 }
 
 // Returns true if index can exist on board
-function isValidTileIndex(index: number): boolean {
-	const { boardSizeX, boardSizeY } = GAME_STATE.level
+function isValidTileIndex(index: number, level: Level): boolean {
+	const { boardSizeX, boardSizeY } = level
 	return index >= 0 && index < boardSizeX * boardSizeY
 }
 
 // Returns array containing indexes of the tile and its siblings in the same row.
-function getTileSiblings(tileIndex: number) {
-	const requiredRowIndex = getTileRowIndex(tileIndex)
+function getTileSiblings(tileIndex: number, level: Level) {
+	const { boardSizeX } = level
+	const requiredRowIndex = getTileRowIndex(tileIndex, boardSizeX)
 	return [tileIndex - 1, tileIndex, tileIndex + 1]
-		.filter(isValidTileIndex)
+		.filter((index) => isValidTileIndex(index, level))
 		.filter(
 			(siblingTileIndex) =>
-				getTileRowIndex(siblingTileIndex) === requiredRowIndex
+				getTileRowIndex(siblingTileIndex, boardSizeX) === requiredRowIndex
 		)
 }
 
 // Returns array neighbouring tile indexes
-function getAdjacentTileIndexes(tileIndex: number): number[] {
-	const { boardSizeX, boardSizeY } = GAME_STATE.level
+function getAdjacentTileIndexes(tileIndex: number, level: Level): number[] {
+	const { boardSizeX } = level
 	const tileAboveIndex = tileIndex - boardSizeX
-	const tileBelowIndex = tileIndex + boardSizeY
+	const tileBelowIndex = tileIndex + boardSizeX
 
 	return [tileAboveIndex, tileIndex, tileBelowIndex]
-		.filter(isValidTileIndex)
-		.map(getTileSiblings)
+		.filter((index) => isValidTileIndex(index, level))
+		.map((index) => getTileSiblings(index, level))
 		.flat()
 		.filter((index) => index !== tileIndex)
 }
 
 // Creates a new set of tiles
-function createTileSet({ boardSizeX, boardSizeY, numMines }: Level): Tile[] {
+function createTileSet(level: Level): Tile[] {
+	const { boardSizeX, boardSizeY, numMines } = level
 	const numTiles = boardSizeX * boardSizeY
 	const mineIndexes: number[] = []
 
@@ -126,7 +123,7 @@ function createTileSet({ boardSizeX, boardSizeY, numMines }: Level): Tile[] {
 
 	// Create array of tile objects
 	return Array.from({ length: numTiles }).map((_, index) => {
-		const adjacentTileIndexes = getAdjacentTileIndexes(index)
+		const adjacentTileIndexes = getAdjacentTileIndexes(index, level)
 		const mineCount = mineIndexes.includes(index)
 			? undefined
 			: adjacentTileIndexes.filter((adjacentIndex) =>
@@ -157,11 +154,11 @@ document.addEventListener('DOMContentLoaded', function () {
 		handleBoardClickEvent(event, handleExposeTile)
 	)
 
-	const renderTiles = (): void => {
+	const renderTiles = ({ tiles, status }: GameState): void => {
 		board.innerHTML = ''
 		const tilesNodes = document.createDocumentFragment()
 
-		GAME_STATE.tiles.forEach((tile, index) => {
+		tiles.forEach((tile, index) => {
 			const listItem: HTMLLIElement = document.createElement('li')
 			const tileElement: HTMLButtonElement = document.createElement('button')
 
@@ -171,7 +168,7 @@ document.addEventListener('DOMContentLoaded', function () {
 			const isSafeTile = type === TILE_TYPE.SAFE
 
 			// If game ACTIVE
-			if (GAME_STATE.status === GAME_STATUS.ACTIVE) {
+			if (status === GAME_STATUS.ACTIVE) {
 				if (isExposed) {
 					tileElement.disabled = true
 					tileElement.classList.add('exposed')
@@ -186,7 +183,7 @@ document.addEventListener('DOMContentLoaded', function () {
 			}
 
 			// If game WON
-			if (GAME_STATE.status === GAME_STATUS.WON) {
+			if (status === GAME_STATUS.WON) {
 				tileElement.disabled = true
 				if (isSafeTile) {
 					tileElement.classList.add('exposed')
@@ -200,7 +197,7 @@ document.addEventListener('DOMContentLoaded', function () {
 			}
 
 			// If game LOST
-			if (GAME_STATE.status === GAME_STATUS.LOST) {
+			if (status === GAME_STATUS.LOST) {
 				tileElement.disabled = true
 				if (isSafeTile) {
 					if (isExposed) {
@@ -242,7 +239,7 @@ document.addEventListener('DOMContentLoaded', function () {
 		board.style.gridTemplateRows = `repeat(${newState?.level?.boardSizeY}, 1fr)`
 
 		GAME_STATE = newState
-		renderTiles()
+		renderTiles(newState)
 	}
 
 	// To start or reset game state
@@ -304,7 +301,11 @@ document.addEventListener('DOMContentLoaded', function () {
 		})
 	}
 
-	const findIndexesToExpose = (index: number): number[] => {
+	const findIndexesToExpose = (
+		index: number,
+		level: Level,
+		tiles: Tile[]
+	): number[] => {
 		const stack: number[] = [index]
 		const result: Set<number> = new Set() /* Use Set to prevent duplication */
 		const visitedIndexes: Set<number> = new Set()
@@ -319,11 +320,10 @@ document.addEventListener('DOMContentLoaded', function () {
 			visitedIndexes.add(latestIndex)
 			result.add(latestIndex)
 
-			const surroundingIndexes = getAdjacentTileIndexes(latestIndex)
+			const surroundingIndexes = getAdjacentTileIndexes(latestIndex, level)
 
 			surroundingIndexes.forEach((exploreIndex) => {
-				const { type, isExposed, isFlagged, mineCount } =
-					GAME_STATE.tiles[exploreIndex]
+				const { type, isExposed, isFlagged, mineCount } = tiles[exploreIndex]
 
 				if (
 					!visitedIndexes.has(exploreIndex) &&
@@ -347,7 +347,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
 	// Expose selected tile and update game status accordingly
 	const handleExposeTile = (dataIndex: number): void => {
-		const tile = GAME_STATE.tiles[dataIndex]
+		const { tiles: previousTiles, level } = GAME_STATE
+		const tile = previousTiles[dataIndex]
 		if (tile.isFlagged || tile.isExposed) return
 		const isSafeTile = tile.type === TILE_TYPE.SAFE
 
@@ -355,7 +356,7 @@ document.addEventListener('DOMContentLoaded', function () {
 		const tiles = [...GAME_STATE.tiles]
 		const indexesToExpose =
 			isSafeTile && !tile.mineCount
-				? [dataIndex, ...findIndexesToExpose(dataIndex)]
+				? [dataIndex, ...findIndexesToExpose(dataIndex, level, previousTiles)]
 				: [dataIndex]
 
 		indexesToExpose.forEach((index) => {

@@ -55,7 +55,7 @@ main {
 }
 
 #board li button.exposed.mine {
-	background-color: #f46f46;
+	background-color: #ff0000;
 	color: #ffffff;
 }
 
