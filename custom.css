@@ -14,6 +14,7 @@ main {
 	align-items: center;
 	justify-content: center;
 	background-color: #000;
+	overflow: auto;
 }
 
 ol,
@@ -66,6 +67,7 @@ ul {
 .button-list {
 	display: flex;
 	flex-wrap: wrap;
+	justify-content: center;
 	margin-top: 2rem;
 }
 
