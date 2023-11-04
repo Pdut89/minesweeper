@@ -3,7 +3,7 @@ const FLAG_EMOJI = '&#128681;';
 const MINE_EMOJI = '&#x1F4A3;';
 const LEVELS = {
     beginner: {
-        boardSizeX: 15,
+        boardSizeX: 8,
         boardSizeY: 8,
         numMines: 10,
     },
@@ -94,7 +94,7 @@ function createTileSet(level) {
 document.addEventListener('DOMContentLoaded', function () {
     const board = document.querySelector('#board');
     const resetButton = document.querySelector('#reset-button');
-    const levelButtons = document.querySelectorAll('.level button');
+    const levelButtons = document.querySelectorAll('.level');
     board.addEventListener('contextmenu', (event) => handleBoardClickEvent(event, handleFlagTile));
     board.addEventListener('click', (event) => handleBoardClickEvent(event, handleExposeTile));
     const renderTiles = ({ tiles, status }) => {
@@ -170,11 +170,11 @@ document.addEventListener('DOMContentLoaded', function () {
     };
     // Sets the new "GAME_STATE" and re-renders the tiles
     const updateGameState = (state) => {
-        var _a, _b;
         const newState = Object.assign(Object.assign({}, GAME_STATE), state);
         // Set board grid styles
-        board.style.gridTemplateColumns = `repeat(${(_a = newState === null || newState === void 0 ? void 0 : newState.level) === null || _a === void 0 ? void 0 : _a.boardSizeX}, 1fr)`;
-        board.style.gridTemplateRows = `repeat(${(_b = newState === null || newState === void 0 ? void 0 : newState.level) === null || _b === void 0 ? void 0 : _b.boardSizeY}, 1fr)`;
+        const { boardSizeX, boardSizeY } = newState.level;
+        board.style.gridTemplateColumns = `repeat(${boardSizeX}, 1fr)`;
+        board.style.gridTemplateRows = `repeat(${boardSizeY}, 1fr)`;
         GAME_STATE = newState;
         renderTiles(newState);
     };
@@ -213,13 +213,15 @@ document.addEventListener('DOMContentLoaded', function () {
     };
     // Toggle flag if tile is not exposed
     const handleFlagTile = (dataIndex) => {
-        const updatedTiles = GAME_STATE.tiles.map((tile, index) => {
-            if (tile.isExposed || index !== dataIndex)
-                return tile;
-            return Object.assign(Object.assign({}, tile), { isFlagged: !tile.isFlagged });
-        });
+        const { tiles } = GAME_STATE;
+        if (tiles[dataIndex].isExposed)
+            return;
         updateGameState({
-            tiles: updatedTiles,
+            tiles: [
+                ...tiles.slice(0, dataIndex),
+                Object.assign(Object.assign({}, tiles[dataIndex]), { isFlagged: !tiles[dataIndex].isFlagged }),
+                ...tiles.slice(dataIndex + 1),
+            ],
         });
     };
     const findIndexesToExpose = (index, level, tiles) => {
@@ -233,8 +235,8 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             visitedIndexes.add(latestIndex);
             result.add(latestIndex);
-            const surroundingIndexes = getAdjacentTileIndexes(latestIndex, level);
-            surroundingIndexes.forEach((exploreIndex) => {
+            const { adjacentTileIndexes } = tiles[latestIndex];
+            adjacentTileIndexes.forEach((exploreIndex) => {
                 const { type, isExposed, isFlagged, mineCount } = tiles[exploreIndex];
                 if (!visitedIndexes.has(exploreIndex) &&
                     type === 0 /* TILE_TYPE.SAFE */ &&

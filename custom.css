@@ -16,9 +16,13 @@ main {
 	background-color: #000;
 }
 
+ol,
+ul {
+	list-style: none;
+}
+
 #board {
 	display: grid;
-	list-style: none;
 }
 
 #board li {
@@ -59,7 +63,13 @@ main {
 	color: #ffffff;
 }
 
-#reset-button {
+.button-list {
+	display: flex;
+	flex-wrap: wrap;
+	margin-top: 2rem;
+}
+
+.button {
 	width: 10rem;
 	height: 4rem;
 	background-color: #a6d9a5;
@@ -69,8 +79,13 @@ main {
 	cursor: pointer;
 	font-size: 1.6rem;
 	opacity: 0.8;
+	margin: 0.5rem;
 }
 
-#reset-button:hover {
-	background-color: #87ed85;
+.button:hover {
+	opacity: 1;
+}
+
+.button#reset-button {
+	background-color: #729aff;
 }

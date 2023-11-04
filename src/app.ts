@@ -34,7 +34,7 @@ const MINE_EMOJI: string = '&#x1F4A3;'
 
 const LEVELS: Record<string, Level> = {
 	beginner: {
-		boardSizeX: 15,
+		boardSizeX: 8,
 		boardSizeY: 8,
 		numMines: 10,
 	},
@@ -145,7 +145,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	const resetButton: HTMLButtonElement =
 		document.querySelector('#reset-button')!
 	const levelButtons: NodeListOf<HTMLButtonElement> =
-		document.querySelectorAll('.level button')!
+		document.querySelectorAll('.level')!
 
 	board.addEventListener('contextmenu', (event) =>
 		handleBoardClickEvent(event, handleFlagTile)
@@ -235,8 +235,9 @@ document.addEventListener('DOMContentLoaded', function () {
 	const updateGameState = (state?: Partial<GameState>): void => {
 		const newState = { ...GAME_STATE, ...state }
 		// Set board grid styles
-		board.style.gridTemplateColumns = `repeat(${newState?.level?.boardSizeX}, 1fr)`
-		board.style.gridTemplateRows = `repeat(${newState?.level?.boardSizeY}, 1fr)`
+		const { boardSizeX, boardSizeY } = newState.level
+		board.style.gridTemplateColumns = `repeat(${boardSizeX}, 1fr)`
+		board.style.gridTemplateRows = `repeat(${boardSizeY}, 1fr)`
 
 		GAME_STATE = newState
 		renderTiles(newState)
@@ -278,7 +279,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	// Handle left or right click on board
 	const handleBoardClickEvent = (
 		event: MouseEvent,
-		callback: Function
+		callback: (dataIndex: number) => void
 	): void => {
 		event.preventDefault()
 		const target = event.target as HTMLButtonElement
@@ -289,15 +290,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
 	// Toggle flag if tile is not exposed
 	const handleFlagTile = (dataIndex: number): void => {
-		const updatedTiles = GAME_STATE.tiles.map((tile: Tile, index: number) => {
-			if (tile.isExposed || index !== dataIndex) return tile
-			return {
-				...tile,
-				isFlagged: !tile.isFlagged,
-			}
-		})
+		const { tiles } = GAME_STATE
+		if (tiles[dataIndex].isExposed) return
+
 		updateGameState({
-			tiles: updatedTiles,
+			tiles: [
+				...tiles.slice(0, dataIndex),
+				{ ...tiles[dataIndex], isFlagged: !tiles[dataIndex].isFlagged },
+				...tiles.slice(dataIndex + 1),
+			],
 		})
 	}
 
@@ -320,9 +321,9 @@ document.addEventListener('DOMContentLoaded', function () {
 			visitedIndexes.add(latestIndex)
 			result.add(latestIndex)
 
-			const surroundingIndexes = getAdjacentTileIndexes(latestIndex, level)
+			const { adjacentTileIndexes } = tiles[latestIndex]
 
-			surroundingIndexes.forEach((exploreIndex) => {
+			adjacentTileIndexes.forEach((exploreIndex) => {
 				const { type, isExposed, isFlagged, mineCount } = tiles[exploreIndex]
 
 				if (
