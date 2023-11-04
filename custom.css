@@ -31,18 +31,27 @@ main {
 	height: 100%;
 	background-color: #b8b8b8;
 	cursor: pointer;
-	font-size: 2rem;
+	font-size: 2.3rem;
 	font-weight: 700;
+	color: #000000;
+}
+
+#board li button:disabled {
+	pointer-events: none;
+	opacity: 1;
+}
+
+#board li button.wrongly-flagged {
+	background-color: #ffbda8;
 }
 
 #board li button.exposed {
 	background-color: #ffffff;
 }
 
-#board li button.exposed:disabled {
+#board li button.exposed {
 	border: 0.1rem solid #e3e3e3;
 	outline: none;
-	pointer-events: none;
 }
 
 #board li button.exposed.mine {
@@ -65,75 +74,3 @@ main {
 #reset-button:hover {
 	background-color: #87ed85;
 }
-
-/* 
-
-
-
-.tile {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  
-}
-
-.tile > div {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.6rem;
-}
-
-.hidden {
-  background-color: #b5b5b5;
-  cursor: pointer;
-}
-
-.flagged {
-  cursor: pointer;
-}
-
-.flagged::before {
-  content: '🚩';
-}
-
-.safe {
-  pointer-events: none;
-}
-
-.landmine {
-  background-color: #ff0000;
-}
-
-.landmine-green {
-  background-color: #06c100;
-}
-
-.landmine::before {
-  content: '💣';
-}
-
-.board-sizes {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 1rem;
-  width: 34em;
-}
-
-.button {
-  width: 10rem;
-  height: 4rem;
-  background-color: #fff;
-  margin-top: 4rem;
-  border-radius: 2px;
-  border: none;
-  outline: none;
-  cursor: pointer;
-  font-size: 1.6rem;
-}
-
-.button:active {
-  background-color: #b5b5b5;
-} */
