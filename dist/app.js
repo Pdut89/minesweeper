@@ -1,6 +1,7 @@
 "use strict";
 const FLAG_EMOJI = '&#128681;';
 const MINE_EMOJI = '&#x1F4A3;';
+const LONG_PRESS_TIMEOUT_MS = 450; // Less than the iOS 500ms default
 const LEVELS = {
     beginner: {
         boardSizeX: 8,
@@ -92,11 +93,30 @@ function createTileSet(level) {
     });
 }
 document.addEventListener('DOMContentLoaded', function () {
+    let longPressTimeout;
     const board = document.querySelector('#board');
     const resetButton = document.querySelector('#reset-button');
     const levelButtons = document.querySelectorAll('.level');
     board.addEventListener('contextmenu', (event) => handleBoardClickEvent(event, handleFlagTile));
     board.addEventListener('click', (event) => handleBoardClickEvent(event, handleExposeTile));
+    board.addEventListener('touchstart', function (event) {
+        const target = event.target;
+        const dataIndex = target.getAttribute('data-index');
+        if (!dataIndex)
+            return;
+        const index = parseInt(dataIndex);
+        const { isFlagged: initialIsFlagged } = GAME_STATE.tiles[index];
+        longPressTimeout = setTimeout(() => {
+            // Only flag tile if it was not already flagged by the 'contextMenu' event listener
+            if (GAME_STATE.tiles[index].isFlagged === initialIsFlagged) {
+                event.preventDefault();
+                handleFlagTile(index);
+            }
+        }, LONG_PRESS_TIMEOUT_MS);
+    });
+    board.addEventListener('touchend', () => {
+        clearTimeout(longPressTimeout);
+    });
     const renderTiles = ({ tiles, status }) => {
         board.innerHTML = '';
         const tilesNodes = document.createDocumentFragment();

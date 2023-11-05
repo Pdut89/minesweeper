@@ -31,6 +31,7 @@ interface GameState {
 
 const FLAG_EMOJI: string = '&#128681;'
 const MINE_EMOJI: string = '&#x1F4A3;'
+const LONG_PRESS_TIMEOUT_MS = 450 // Less than the iOS 500ms default
 
 const LEVELS: Record<string, Level> = {
 	beginner: {
@@ -141,6 +142,8 @@ function createTileSet(level: Level): Tile[] {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
+	let longPressTimeout: any
+
 	const board: HTMLDivElement = document.querySelector('#board')!
 	const resetButton: HTMLButtonElement =
 		document.querySelector('#reset-button')!
@@ -153,6 +156,26 @@ document.addEventListener('DOMContentLoaded', function () {
 	board.addEventListener('click', (event) =>
 		handleBoardClickEvent(event, handleExposeTile)
 	)
+
+	board.addEventListener('touchstart', function (event) {
+		const target = event.target as HTMLButtonElement
+		const dataIndex = target.getAttribute('data-index')
+		if (!dataIndex) return
+		const index = parseInt(dataIndex)
+		const { isFlagged: initialIsFlagged } = GAME_STATE.tiles[index]
+
+		longPressTimeout = setTimeout(() => {
+			// Only flag tile if it was not already flagged by the 'contextMenu' event listener
+			if (GAME_STATE.tiles[index].isFlagged === initialIsFlagged) {
+				event.preventDefault()
+				handleFlagTile(index)
+			}
+		}, LONG_PRESS_TIMEOUT_MS)
+	})
+
+	board.addEventListener('touchend', () => {
+		clearTimeout(longPressTimeout)
+	})
 
 	const renderTiles = ({ tiles, status }: GameState): void => {
 		board.innerHTML = ''
