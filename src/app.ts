@@ -31,7 +31,7 @@ interface GameState {
 
 const FLAG_EMOJI: string = '&#128681;'
 const MINE_EMOJI: string = '&#x1F4A3;'
-const LONG_PRESS_TIMEOUT_MS = 500 // Less than the iOS 500ms default
+const LONG_PRESS_TIMEOUT_MS = 500
 
 const LEVELS: Record<string, Level> = {
 	beginner: {
