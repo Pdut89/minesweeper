@@ -39,6 +39,10 @@ ul {
 	font-size: 2.3rem;
 	font-weight: 700;
 	color: #000000;
+	/* https://stackoverflow.com/questions/12304012/preventing-default-context-menu-on-longpress-longclick-in-mobile-safari-ipad */
+	user-select: none;
+	-webkit-touch-callout: none !important;
+	-webkit-user-select: none !important;
 }
 
 #board li button:disabled {
