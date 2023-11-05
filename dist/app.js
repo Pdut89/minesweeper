@@ -112,6 +112,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 	// Mobile long press for flagging tiles
 	board.addEventListener('touchstart', function (event) {
+		event.preventDefault()
 		longPressTimeout = setTimeout(() => {
 			handleBoardClickEvent(event, handleFlagTile)
 		}, 500)
